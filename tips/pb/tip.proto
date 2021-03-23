@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = "github.com/ex8/tipon/tips/pb";
+
+package pb;
+
+service TipService {
+  rpc FindTips(FindTipsRequest) returns (stream Tip) {}
+  rpc FindOneTip(FindOneTipRequest) returns (Tip) {}
+  rpc CreateTip(Tip) returns (Tip) {}
+  rpc UpdateTip(Tip) returns (Tip) {}
+}
+
+message Tip {
+  int64 amount = 1;
+  string note = 2;
+  string user_id = 3;
+}
+
+message FindTipsRequest {
+
+}
+
+message FindOneTipRequest {
+  string id = 1;
+}
