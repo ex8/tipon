@@ -7,14 +7,15 @@ package pb;
 service TipService {
   rpc FindTips(FindTipsRequest) returns (stream Tip) {}
   rpc FindOneTip(FindOneTipRequest) returns (Tip) {}
-  rpc CreateTip(Tip) returns (Tip) {}
-  rpc UpdateTip(Tip) returns (Tip) {}
+  rpc CreateTip(CreateTipRequest) returns (Tip) {}
+  rpc UpdateTip(UpdateTipRequest) returns (Tip) {}
 }
 
 message Tip {
-  int64 amount = 1;
-  string note = 2;
-  string user_id = 3;
+  string id = 1;
+  int64 amount = 2;
+  string note = 3;
+  string user_id = 4;
 }
 
 message FindTipsRequest {
@@ -22,5 +23,15 @@ message FindTipsRequest {
 }
 
 message FindOneTipRequest {
+  string id = 1;
+}
+
+message CreateTipRequest {
+  int64 amount = 1;
+  string note = 2;
+  string user_id = 3;
+}
+
+message UpdateTipRequest {
   string id = 1;
 }

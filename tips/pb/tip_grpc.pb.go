@@ -20,8 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type TipServiceClient interface {
 	FindTips(ctx context.Context, in *FindTipsRequest, opts ...grpc.CallOption) (TipService_FindTipsClient, error)
 	FindOneTip(ctx context.Context, in *FindOneTipRequest, opts ...grpc.CallOption) (*Tip, error)
-	CreateTip(ctx context.Context, in *Tip, opts ...grpc.CallOption) (*Tip, error)
-	UpdateTip(ctx context.Context, in *Tip, opts ...grpc.CallOption) (*Tip, error)
+	CreateTip(ctx context.Context, in *CreateTipRequest, opts ...grpc.CallOption) (*Tip, error)
+	UpdateTip(ctx context.Context, in *UpdateTipRequest, opts ...grpc.CallOption) (*Tip, error)
 }
 
 type tipServiceClient struct {
@@ -73,7 +73,7 @@ func (c *tipServiceClient) FindOneTip(ctx context.Context, in *FindOneTipRequest
 	return out, nil
 }
 
-func (c *tipServiceClient) CreateTip(ctx context.Context, in *Tip, opts ...grpc.CallOption) (*Tip, error) {
+func (c *tipServiceClient) CreateTip(ctx context.Context, in *CreateTipRequest, opts ...grpc.CallOption) (*Tip, error) {
 	out := new(Tip)
 	err := c.cc.Invoke(ctx, "/pb.TipService/CreateTip", in, out, opts...)
 	if err != nil {
@@ -82,7 +82,7 @@ func (c *tipServiceClient) CreateTip(ctx context.Context, in *Tip, opts ...grpc.
 	return out, nil
 }
 
-func (c *tipServiceClient) UpdateTip(ctx context.Context, in *Tip, opts ...grpc.CallOption) (*Tip, error) {
+func (c *tipServiceClient) UpdateTip(ctx context.Context, in *UpdateTipRequest, opts ...grpc.CallOption) (*Tip, error) {
 	out := new(Tip)
 	err := c.cc.Invoke(ctx, "/pb.TipService/UpdateTip", in, out, opts...)
 	if err != nil {
@@ -97,8 +97,8 @@ func (c *tipServiceClient) UpdateTip(ctx context.Context, in *Tip, opts ...grpc.
 type TipServiceServer interface {
 	FindTips(*FindTipsRequest, TipService_FindTipsServer) error
 	FindOneTip(context.Context, *FindOneTipRequest) (*Tip, error)
-	CreateTip(context.Context, *Tip) (*Tip, error)
-	UpdateTip(context.Context, *Tip) (*Tip, error)
+	CreateTip(context.Context, *CreateTipRequest) (*Tip, error)
+	UpdateTip(context.Context, *UpdateTipRequest) (*Tip, error)
 	mustEmbedUnimplementedTipServiceServer()
 }
 
@@ -112,10 +112,10 @@ func (UnimplementedTipServiceServer) FindTips(*FindTipsRequest, TipService_FindT
 func (UnimplementedTipServiceServer) FindOneTip(context.Context, *FindOneTipRequest) (*Tip, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindOneTip not implemented")
 }
-func (UnimplementedTipServiceServer) CreateTip(context.Context, *Tip) (*Tip, error) {
+func (UnimplementedTipServiceServer) CreateTip(context.Context, *CreateTipRequest) (*Tip, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTip not implemented")
 }
-func (UnimplementedTipServiceServer) UpdateTip(context.Context, *Tip) (*Tip, error) {
+func (UnimplementedTipServiceServer) UpdateTip(context.Context, *UpdateTipRequest) (*Tip, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTip not implemented")
 }
 func (UnimplementedTipServiceServer) mustEmbedUnimplementedTipServiceServer() {}
@@ -171,7 +171,7 @@ func _TipService_FindOneTip_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _TipService_CreateTip_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Tip)
+	in := new(CreateTipRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -183,13 +183,13 @@ func _TipService_CreateTip_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/pb.TipService/CreateTip",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TipServiceServer).CreateTip(ctx, req.(*Tip))
+		return srv.(TipServiceServer).CreateTip(ctx, req.(*CreateTipRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _TipService_UpdateTip_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Tip)
+	in := new(UpdateTipRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -201,7 +201,7 @@ func _TipService_UpdateTip_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/pb.TipService/UpdateTip",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TipServiceServer).UpdateTip(ctx, req.(*Tip))
+		return srv.(TipServiceServer).UpdateTip(ctx, req.(*UpdateTipRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
