@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"github.com/ex8/tipon/tips/pb"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type tipService struct {
 	pb.UnimplementedTipServiceServer
+	tips *mongo.Collection
 }
 
 func (s *tipService) FindTips(req *pb.FindTipsRequest, stream pb.TipService_FindTipsServer) error {
