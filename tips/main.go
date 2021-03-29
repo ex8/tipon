@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	"github.com/ex8/tipon/tips/pb"
@@ -14,7 +16,7 @@ import (
 )
 
 func main() {
-	lis, err := net.Listen("tcp", ":8000")
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", os.Getenv("TIPON_TIPS_PORT")))
 	if err != nil {
 		log.Fatalf("tips failed to listen: %v", err)
 	}
@@ -23,7 +25,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	uri := fmt.Sprintf("mongodb://%s:%s", os.Getenv("TIPON_MONGO_HOST"), os.Getenv("TIPON_MONGO_PORT"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		log.Fatalf("tips failed db connection: %v", err)
 	}

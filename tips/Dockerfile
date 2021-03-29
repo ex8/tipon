@@ -1,5 +1,5 @@
 FROM golang:1.16 as builder
-# TODO: Install 'protoc' to compile protobuf's
+# TODO: Install 'protoc' to compile protobufs
 WORKDIR /app
 COPY go.* ./
 RUN go mod download
