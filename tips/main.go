@@ -16,19 +16,27 @@ import (
 )
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", os.Getenv("TIPON_TIPS_PORT")))
+	var (
+		servicePort = os.Getenv("TIPON_TIPS_PORT")
+		mongoHost   = os.Getenv("TIPON_MONGO_HOST")
+		mongoPort   = os.Getenv("TIPON_MONGO_PORT")
+	)
+
+	logger := log.New(os.Stdout, "tips_server:", log.Default().Flags())
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", servicePort))
 	if err != nil {
-		log.Fatalf("tips failed to listen: %v", err)
+		logger.Fatalf("tips failed to listen: %v", err)
 	}
 
 	// DB connect
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	uri := fmt.Sprintf("mongodb://%s:%s", os.Getenv("TIPON_MONGO_HOST"), os.Getenv("TIPON_MONGO_PORT"))
+	uri := fmt.Sprintf("mongodb://%s:%s", mongoHost, mongoPort)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
-		log.Fatalf("tips failed db connection: %v", err)
+		logger.Fatalf("tips failed db connection: %v", err)
 	}
 	defer func() {
 		if err = client.Disconnect(ctx); err != nil {
@@ -38,13 +46,13 @@ func main() {
 
 	// DB ping
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		log.Fatalf("tips failed db ping: %v", err)
+		logger.Fatalf("tips failed db ping: %v", err)
 	}
 
 	// Tips gRPC server
 	s := grpc.NewServer()
 	pb.RegisterTipServiceServer(s, &tipService{tips: client.Database("tipon-tips").Collection("tips")})
 	if err := s.Serve(lis); err != nil {
-		log.Fatalf("tips failed to serve: %v", err)
+		logger.Fatalf("tips failed to serve: %v", err)
 	}
 }
