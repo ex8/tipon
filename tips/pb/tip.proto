@@ -5,33 +5,36 @@ option go_package = "github.com/ex8/tipon/tips/pb";
 package pb;
 
 service TipService {
-  rpc FindTips(FindTipsRequest) returns (stream Tip) {}
-  rpc FindOneTip(FindOneTipRequest) returns (Tip) {}
-  rpc CreateTip(CreateTipRequest) returns (Tip) {}
-  rpc UpdateTip(UpdateTipRequest) returns (Tip) {}
+  rpc FindTips(FindTipsReq) returns (stream FindTipsRes) {}
+  rpc FindOneTip(FindOneTipReq) returns (FindOneTipRes) {}
+  rpc CreateTip(CreateTipReq) returns (CreateTipRes) {}
 }
 
 message Tip {
   string id = 1;
-  int64 amount = 2;
+  double amount = 2;
   string note = 3;
   string user_id = 4;
 }
 
-message FindTipsRequest {
+message FindTipsReq {}
 
+message FindTipsRes {
+  Tip tip = 1;
 }
 
-message FindOneTipRequest {
+message FindOneTipReq {
   string id = 1;
 }
 
-message CreateTipRequest {
-  int64 amount = 1;
-  string note = 2;
-  string user_id = 3;
+message FindOneTipRes {
+  Tip tip = 1;
 }
 
-message UpdateTipRequest {
-  string id = 1;
+message CreateTipReq {
+  Tip tip = 1;
+}
+
+message CreateTipRes {
+  Tip tip = 1;
 }

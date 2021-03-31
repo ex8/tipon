@@ -24,7 +24,7 @@ func main() {
 
 	logger := log.New(os.Stdout, "tips_server:", log.Default().Flags())
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", servicePort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", servicePort))
 	if err != nil {
 		logger.Fatalf("tips failed to listen: %v", err)
 	}

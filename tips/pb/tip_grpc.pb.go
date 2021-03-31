@@ -18,10 +18,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TipServiceClient interface {
-	FindTips(ctx context.Context, in *FindTipsRequest, opts ...grpc.CallOption) (TipService_FindTipsClient, error)
-	FindOneTip(ctx context.Context, in *FindOneTipRequest, opts ...grpc.CallOption) (*Tip, error)
-	CreateTip(ctx context.Context, in *CreateTipRequest, opts ...grpc.CallOption) (*Tip, error)
-	UpdateTip(ctx context.Context, in *UpdateTipRequest, opts ...grpc.CallOption) (*Tip, error)
+	FindTips(ctx context.Context, in *FindTipsReq, opts ...grpc.CallOption) (TipService_FindTipsClient, error)
+	FindOneTip(ctx context.Context, in *FindOneTipReq, opts ...grpc.CallOption) (*FindOneTipRes, error)
+	CreateTip(ctx context.Context, in *CreateTipReq, opts ...grpc.CallOption) (*CreateTipRes, error)
 }
 
 type tipServiceClient struct {
@@ -32,7 +31,7 @@ func NewTipServiceClient(cc grpc.ClientConnInterface) TipServiceClient {
 	return &tipServiceClient{cc}
 }
 
-func (c *tipServiceClient) FindTips(ctx context.Context, in *FindTipsRequest, opts ...grpc.CallOption) (TipService_FindTipsClient, error) {
+func (c *tipServiceClient) FindTips(ctx context.Context, in *FindTipsReq, opts ...grpc.CallOption) (TipService_FindTipsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &TipService_ServiceDesc.Streams[0], "/pb.TipService/FindTips", opts...)
 	if err != nil {
 		return nil, err
@@ -48,7 +47,7 @@ func (c *tipServiceClient) FindTips(ctx context.Context, in *FindTipsRequest, op
 }
 
 type TipService_FindTipsClient interface {
-	Recv() (*Tip, error)
+	Recv() (*FindTipsRes, error)
 	grpc.ClientStream
 }
 
@@ -56,16 +55,16 @@ type tipServiceFindTipsClient struct {
 	grpc.ClientStream
 }
 
-func (x *tipServiceFindTipsClient) Recv() (*Tip, error) {
-	m := new(Tip)
+func (x *tipServiceFindTipsClient) Recv() (*FindTipsRes, error) {
+	m := new(FindTipsRes)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *tipServiceClient) FindOneTip(ctx context.Context, in *FindOneTipRequest, opts ...grpc.CallOption) (*Tip, error) {
-	out := new(Tip)
+func (c *tipServiceClient) FindOneTip(ctx context.Context, in *FindOneTipReq, opts ...grpc.CallOption) (*FindOneTipRes, error) {
+	out := new(FindOneTipRes)
 	err := c.cc.Invoke(ctx, "/pb.TipService/FindOneTip", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -73,18 +72,9 @@ func (c *tipServiceClient) FindOneTip(ctx context.Context, in *FindOneTipRequest
 	return out, nil
 }
 
-func (c *tipServiceClient) CreateTip(ctx context.Context, in *CreateTipRequest, opts ...grpc.CallOption) (*Tip, error) {
-	out := new(Tip)
+func (c *tipServiceClient) CreateTip(ctx context.Context, in *CreateTipReq, opts ...grpc.CallOption) (*CreateTipRes, error) {
+	out := new(CreateTipRes)
 	err := c.cc.Invoke(ctx, "/pb.TipService/CreateTip", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tipServiceClient) UpdateTip(ctx context.Context, in *UpdateTipRequest, opts ...grpc.CallOption) (*Tip, error) {
-	out := new(Tip)
-	err := c.cc.Invoke(ctx, "/pb.TipService/UpdateTip", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,10 +85,9 @@ func (c *tipServiceClient) UpdateTip(ctx context.Context, in *UpdateTipRequest, 
 // All implementations must embed UnimplementedTipServiceServer
 // for forward compatibility
 type TipServiceServer interface {
-	FindTips(*FindTipsRequest, TipService_FindTipsServer) error
-	FindOneTip(context.Context, *FindOneTipRequest) (*Tip, error)
-	CreateTip(context.Context, *CreateTipRequest) (*Tip, error)
-	UpdateTip(context.Context, *UpdateTipRequest) (*Tip, error)
+	FindTips(*FindTipsReq, TipService_FindTipsServer) error
+	FindOneTip(context.Context, *FindOneTipReq) (*FindOneTipRes, error)
+	CreateTip(context.Context, *CreateTipReq) (*CreateTipRes, error)
 	mustEmbedUnimplementedTipServiceServer()
 }
 
@@ -106,17 +95,14 @@ type TipServiceServer interface {
 type UnimplementedTipServiceServer struct {
 }
 
-func (UnimplementedTipServiceServer) FindTips(*FindTipsRequest, TipService_FindTipsServer) error {
+func (UnimplementedTipServiceServer) FindTips(*FindTipsReq, TipService_FindTipsServer) error {
 	return status.Errorf(codes.Unimplemented, "method FindTips not implemented")
 }
-func (UnimplementedTipServiceServer) FindOneTip(context.Context, *FindOneTipRequest) (*Tip, error) {
+func (UnimplementedTipServiceServer) FindOneTip(context.Context, *FindOneTipReq) (*FindOneTipRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindOneTip not implemented")
 }
-func (UnimplementedTipServiceServer) CreateTip(context.Context, *CreateTipRequest) (*Tip, error) {
+func (UnimplementedTipServiceServer) CreateTip(context.Context, *CreateTipReq) (*CreateTipRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTip not implemented")
-}
-func (UnimplementedTipServiceServer) UpdateTip(context.Context, *UpdateTipRequest) (*Tip, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateTip not implemented")
 }
 func (UnimplementedTipServiceServer) mustEmbedUnimplementedTipServiceServer() {}
 
@@ -132,7 +118,7 @@ func RegisterTipServiceServer(s grpc.ServiceRegistrar, srv TipServiceServer) {
 }
 
 func _TipService_FindTips_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(FindTipsRequest)
+	m := new(FindTipsReq)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -140,7 +126,7 @@ func _TipService_FindTips_Handler(srv interface{}, stream grpc.ServerStream) err
 }
 
 type TipService_FindTipsServer interface {
-	Send(*Tip) error
+	Send(*FindTipsRes) error
 	grpc.ServerStream
 }
 
@@ -148,12 +134,12 @@ type tipServiceFindTipsServer struct {
 	grpc.ServerStream
 }
 
-func (x *tipServiceFindTipsServer) Send(m *Tip) error {
+func (x *tipServiceFindTipsServer) Send(m *FindTipsRes) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _TipService_FindOneTip_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FindOneTipRequest)
+	in := new(FindOneTipReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -165,13 +151,13 @@ func _TipService_FindOneTip_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/pb.TipService/FindOneTip",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TipServiceServer).FindOneTip(ctx, req.(*FindOneTipRequest))
+		return srv.(TipServiceServer).FindOneTip(ctx, req.(*FindOneTipReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _TipService_CreateTip_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateTipRequest)
+	in := new(CreateTipReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -183,25 +169,7 @@ func _TipService_CreateTip_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/pb.TipService/CreateTip",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TipServiceServer).CreateTip(ctx, req.(*CreateTipRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TipService_UpdateTip_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateTipRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TipServiceServer).UpdateTip(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/pb.TipService/UpdateTip",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TipServiceServer).UpdateTip(ctx, req.(*UpdateTipRequest))
+		return srv.(TipServiceServer).CreateTip(ctx, req.(*CreateTipReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -220,10 +188,6 @@ var TipService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTip",
 			Handler:    _TipService_CreateTip_Handler,
-		},
-		{
-			MethodName: "UpdateTip",
-			Handler:    _TipService_UpdateTip_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
