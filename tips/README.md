@@ -1,8 +1,14 @@
 # Tipon - Tips gRPC Server
 The tips service gRPC server used for internal communication.
 
+## Requirements
+You must have the following in order to compile the protocol buffers:
+- protoc (https://grpc.io/docs/protoc-installation)
+- protoc-gen-go (google.golang.org/protobuf/cmd/protoc-gen-go)
+- protoc-gen-go-grpc (google.golang.org/grpc/cmd/protoc-gen-go-grpc)
+
 ## Protocol Buffers
-Generate the server/client Go code using the protocol buffer compiler script (must have `protoc` installed).
+Generate the server/client Go code using the protocol buffer compiler script.
 ```
 /bin/bash protoc
 ```
