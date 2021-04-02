@@ -1,5 +1,5 @@
 # Tipon
-Tipon is a backend infrastructure that allows users to tip other users built using a micro-services architecture.
+Tipon is a backend infrastructure that allows users to tip other users. It utilizes a distributed service architecture.
 
 ## Technologies
 - Go
@@ -8,7 +8,7 @@ Tipon is a backend infrastructure that allows users to tip other users built usi
 - Docker
 
 ## Micro-Services
-- `tips` - Tips is the tips gRPC server for internal service communication.
+- `tips` - Tips gRPC server for internal service communication.
 - `tips-api` - Tips API is the public facing Tips API.
 
 ## Build & Serve
