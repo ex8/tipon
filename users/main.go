@@ -51,7 +51,7 @@ func main() {
 
 	// User gRPC server
 	s := grpc.NewServer()
-	pb.RegisterUserServiceServer(s)
+	pb.RegisterUserServiceServer(s, &userService{users: client.Database("tipon-users").Collection("users")})
 	if err := s.Serve(lis); err != nil {
 		logger.Fatalf("tips failed to serve: %v", err)
 	}
