@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option go_package = "github.com/ex8/tipon/auth/pb";
+
+package pb;
+
+service AuthService {
+    rpc GetToken(GetTokenReq) returns (GetTokenRes) {}
+    rpc Validate(ValidateReq) returns (ValidateRes) {}
+}
+
+message GetTokenReq {
+    enum Type {
+        SYSTEM = 0;
+        LOGIN = 1;
+
+    }
+    enum Expiry {
+        SHORT = 0;
+        NORMAL = 1;
+        LONG = 3;
+        NEVER = 4;
+    }
+    Type type = 1;
+    Expiry expiry = 2;
+}
+
+message GetTokenRes {
+    string token = 1;
+}
+
+message ValidateReq {
+    string token = 1;
+}
+
+message ValidateRes {
+    bool valid = 1;
+}
