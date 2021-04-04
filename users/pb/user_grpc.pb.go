@@ -18,7 +18,6 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	FindOneUser(ctx context.Context, in *FindOneUserReq, opts ...grpc.CallOption) (*FindOneUserRes, error)
 	CreateUser(ctx context.Context, in *CreateUserReq, opts ...grpc.CallOption) (*CreateUserRes, error)
 	UpdateUser(ctx context.Context, in *UpdateUserReq, opts ...grpc.CallOption) (*UpdateUserRes, error)
 }
@@ -29,15 +28,6 @@ type userServiceClient struct {
 
 func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
-}
-
-func (c *userServiceClient) FindOneUser(ctx context.Context, in *FindOneUserReq, opts ...grpc.CallOption) (*FindOneUserRes, error) {
-	out := new(FindOneUserRes)
-	err := c.cc.Invoke(ctx, "/pb.UserService/FindOneUser", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserReq, opts ...grpc.CallOption) (*CreateUserRes, error) {
@@ -62,7 +52,6 @@ func (c *userServiceClient) UpdateUser(ctx context.Context, in *UpdateUserReq, o
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
-	FindOneUser(context.Context, *FindOneUserReq) (*FindOneUserRes, error)
 	CreateUser(context.Context, *CreateUserReq) (*CreateUserRes, error)
 	UpdateUser(context.Context, *UpdateUserReq) (*UpdateUserRes, error)
 	mustEmbedUnimplementedUserServiceServer()
@@ -72,9 +61,6 @@ type UserServiceServer interface {
 type UnimplementedUserServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) FindOneUser(context.Context, *FindOneUserReq) (*FindOneUserRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindOneUser not implemented")
-}
 func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserReq) (*CreateUserRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
@@ -92,24 +78,6 @@ type UnsafeUserServiceServer interface {
 
 func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 	s.RegisterService(&UserService_ServiceDesc, srv)
-}
-
-func _UserService_FindOneUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FindOneUserReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).FindOneUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/pb.UserService/FindOneUser",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).FindOneUser(ctx, req.(*FindOneUserReq))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _UserService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -155,10 +123,6 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pb.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "FindOneUser",
-			Handler:    _UserService_FindOneUser_Handler,
-		},
 		{
 			MethodName: "CreateUser",
 			Handler:    _UserService_CreateUser_Handler,

@@ -5,7 +5,6 @@ option go_package = "github.com/ex8/tipon/users/pb";
 package pb;
 
 service UserService {
-    rpc FindOneUser(FindOneUserReq) returns (FindOneUserRes) {}
     rpc CreateUser(CreateUserReq) returns (CreateUserRes) {}
     rpc UpdateUser(UpdateUserReq) returns (UpdateUserRes) {}
 }
@@ -15,14 +14,6 @@ message User {
     string username = 2;
     string password = 3;
     string address = 4;
-}
-
-message FindOneUserReq {
-    string id = 1;
-}
-
-message FindOneUserRes {
-    User user = 1;
 }
 
 message CreateUserReq {

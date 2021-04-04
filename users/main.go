@@ -22,11 +22,11 @@ func main() {
 		mongoPort   = os.Getenv("TIPON_MONGO_PORT")
 	)
 
-	logger := log.New(os.Stdout, "tips_server:", log.Default().Flags())
+	logger := log.New(os.Stdout, "USERS_SERVICE::", log.Default().Flags())
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", servicePort))
 	if err != nil {
-		logger.Fatalf("tips failed to listen: %v", err)
+		logger.Fatalf("users failed to listen: %v", err)
 	}
 
 	// DB connect
@@ -36,7 +36,7 @@ func main() {
 	uri := fmt.Sprintf("mongodb://%s:%s", mongoHost, mongoPort)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
-		logger.Fatalf("tips failed db connection: %v", err)
+		logger.Fatalf("users failed db connection: %v", err)
 	}
 	defer func() {
 		if err = client.Disconnect(ctx); err != nil {
@@ -46,13 +46,15 @@ func main() {
 
 	// DB ping
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		logger.Fatalf("tips failed db ping: %v", err)
+		logger.Fatalf("users failed db ping: %v", err)
 	}
+
+	logger.Printf("starting users service on port %v\n", servicePort)
 
 	// User gRPC server
 	s := grpc.NewServer()
 	pb.RegisterUserServiceServer(s, &userService{users: client.Database("tipon-users").Collection("users")})
 	if err := s.Serve(lis); err != nil {
-		logger.Fatalf("tips failed to serve: %v", err)
+		logger.Fatalf("users failed to serve: %v", err)
 	}
 }
