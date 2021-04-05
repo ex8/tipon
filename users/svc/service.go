@@ -1,4 +1,4 @@
-package main
+package svc
 
 import (
 	"context"
@@ -10,26 +10,26 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type userService struct {
+type UserService struct {
 	pb.UnimplementedUserServiceServer
-	users *mongo.Collection
+	Users *mongo.Collection
 }
 
-type user struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	Username string             `bson:"username"`
-	Password string             `bson:"password"`
-	Address  string             `bson:"address"`
+type User struct {
+	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Username string             `bson:"username" json:"username"`
+	Password string             `bson:"password" json:"password"`
+	Address  string             `bson:"address" json:"address"`
 }
 
-func (s *userService) CreateUser(ctx context.Context, req *pb.CreateUserReq) (*pb.CreateUserRes, error) {
+func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserReq) (*pb.CreateUserRes, error) {
 	u := req.GetUser()
 
 	// serialize data (pb -> struct)
 	data := protoToStruct(u)
 
 	// insert data
-	result, err := s.users.InsertOne(ctx, data)
+	result, err := s.Users.InsertOne(ctx, data)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (s *userService) CreateUser(ctx context.Context, req *pb.CreateUserReq) (*p
 	return &pb.CreateUserRes{User: u}, nil
 }
 
-func (s *userService) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*pb.UpdateUserRes, error) {
+func (s *UserService) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*pb.UpdateUserRes, error) {
 	u := req.GetUser()
 
 	// convert hex to object id
@@ -55,13 +55,13 @@ func (s *userService) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*p
 	opts := options.FindOneAndUpdate().SetReturnDocument(1)
 
 	// find by id and update only changed fields using $set
-	result := s.users.FindOneAndUpdate(ctx, &bson.M{"_id": id}, bson.M{"$set": data}, opts)
+	result := s.Users.FindOneAndUpdate(ctx, &bson.M{"_id": id}, bson.M{"$set": data}, opts)
 	if result.Err() != nil {
 		return nil, result.Err()
 	}
 
 	// decode updated result
-	decoded := &user{}
+	decoded := &User{}
 	if err := result.Decode(&decoded); err != nil {
 		return nil, err
 	}
