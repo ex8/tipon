@@ -17,12 +17,9 @@ import (
 
 func main() {
 	var (
-		// servicePort = os.Getenv("TIPON_USERS_PORT")
-		// mongoHost   = os.Getenv("TIPON_MONGO_HOST")
-		// mongoPort   = os.Getenv("TIPON_MONGO_PORT")
-		servicePort = "5000"
-		mongoHost   = "127.0.0.1"
-		mongoPort   = "27017"
+		servicePort = os.Getenv("TIPON_USERS_PORT")
+		mongoHost   = os.Getenv("TIPON_MONGO_HOST")
+		mongoPort   = os.Getenv("TIPON_MONGO_PORT")
 	)
 
 	logger := log.New(os.Stdout, "USERS_SERVICE::", log.Default().Flags())

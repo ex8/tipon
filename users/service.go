@@ -72,6 +72,8 @@ func (s *userService) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*p
 	if err := result.Decode(&decoded); err != nil {
 		return nil, err
 	}
+
+	// serialize updated data (struct -> pb)
 	updated := &pb.User{
 		Id:       decoded.ID.Hex(),
 		Username: decoded.Username,
