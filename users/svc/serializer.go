@@ -5,15 +5,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func protoToStruct(u *pb.User) User {
-	return User{
+func protoToStruct(u *pb.User) user {
+	return user{
 		Username: u.GetUsername(),
 		Password: u.GetPassword(),
 		Address:  u.GetAddress(),
 	}
 }
 
-func structToProto(u *User) *pb.User {
+func structToProto(u *user) *pb.User {
 	return &pb.User{
 		Username: u.Username,
 		Password: u.Password,
@@ -21,10 +21,12 @@ func structToProto(u *User) *pb.User {
 	}
 }
 
+// TODO: move this to core
 func objectIdToHex(id interface{}) string {
 	return id.(primitive.ObjectID).Hex()
 }
 
+// TODO: move this to core
 func hexToObjectId(id string) (primitive.ObjectID, error) {
 	s, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
