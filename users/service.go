@@ -26,38 +26,31 @@ func (s *userService) CreateUser(ctx context.Context, req *pb.CreateUserReq) (*p
 	u := req.GetUser()
 
 	// serialize data (pb -> struct)
-	data := user{
-		Username: u.GetUsername(),
-		Password: u.GetPassword(),
-		Address:  u.GetAddress(),
-	}
+	data := protoToStruct(u)
 
-	// insert
+	// insert data
 	result, err := s.users.InsertOne(ctx, data)
 	if err != nil {
 		return nil, err
 	}
 
-	// assign & convert mongo object id to hex
-	u.Id = result.InsertedID.(primitive.ObjectID).Hex()
+	// assign & convert object id to hex
+	u.Id = objectIdToHex(result.InsertedID)
 	return &pb.CreateUserRes{User: u}, nil
 }
 
 func (s *userService) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*pb.UpdateUserRes, error) {
 	u := req.GetUser()
 
-	// convert hex to mongo object id
-	id, err := primitive.ObjectIDFromHex(u.GetId())
+	// convert hex to object id
+	id, err := hexToObjectId(u.GetId())
 	if err != nil {
 		return nil, err
 	}
 
 	// serialize data (pb -> struct)
-	data := user{
-		Username: u.GetUsername(),
-		Password: u.GetPassword(),
-		Address:  u.GetAddress(),
-	}
+	data := protoToStruct(u)
+
 	// SetReturnDocument ensures updated doc is returned
 	opts := options.FindOneAndUpdate().SetReturnDocument(1)
 
@@ -74,11 +67,6 @@ func (s *userService) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*p
 	}
 
 	// serialize updated data (struct -> pb)
-	updated := &pb.User{
-		Id:       decoded.ID.Hex(),
-		Username: decoded.Username,
-		Password: decoded.Password,
-		Address:  decoded.Address,
-	}
+	updated := structToProto(decoded)
 	return &pb.UpdateUserRes{User: updated}, nil
 }
