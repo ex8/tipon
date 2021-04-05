@@ -34,9 +34,7 @@ func (s *userApiService) createUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"id": res.GetUser().GetId(),
-	})
+	ctx.JSON(http.StatusOK, gin.H{"user": res.GetUser()})
 }
 
 func (s *userApiService) updateUser(ctx *gin.Context) {
@@ -56,7 +54,5 @@ func (s *userApiService) updateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"id": res.GetUser().GetId(),
-	})
+	ctx.JSON(http.StatusOK, gin.H{"user": res.GetUser()})
 }

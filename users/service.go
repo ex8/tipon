@@ -15,11 +15,11 @@ type userService struct {
 	users *mongo.Collection
 }
 
-type User struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-	Username string             `bson:"username" json:"username"`
-	Password string             `bson:"password" json:"password"`
-	Address  string             `bson:"address" json:"address"`
+type user struct {
+	ID       primitive.ObjectID `bson:"_id,omitempty"`
+	Username string             `bson:"username"`
+	Password string             `bson:"password"`
+	Address  string             `bson:"address"`
 }
 
 func (s *userService) CreateUser(ctx context.Context, req *pb.CreateUserReq) (*pb.CreateUserRes, error) {
