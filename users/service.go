@@ -15,7 +15,7 @@ type userService struct {
 	users *mongo.Collection
 }
 
-type user struct {
+type User struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	Username string             `bson:"username" json:"username"`
 	Password string             `bson:"password" json:"password"`
