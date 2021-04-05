@@ -18,6 +18,14 @@ services:
       - "5000:5000"
     depends_on:
       - "mongo"
+  users_api:
+    container_name: "users-api"
+    restart: always
+    build: ./users-api
+    ports:
+      - "5001:5001"
+    depends_on:
+      - "users_server"
   tips_server:
     container_name: "tips-server"
     restart: always
