@@ -1,26 +1,44 @@
 package main
 
 import (
+	"fmt"
+	"log"
+
+	"github.com/ex8/tipon/users-api/svc"
 	"github.com/ex8/tipon/users/pb"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 )
 
 func main() {
+	// config
+	const (
+		servicePort     = "5001"
+		userServiceName = "localhost"
+		userServicePort = "5000"
+	)
+
+	// default router
 	r := gin.Default()
 
-	conn, err := grpc.Dial("localhost:5000", grpc.WithInsecure())
+	// user client connection
+	host := fmt.Sprintf("%v:%v", userServiceName, userServicePort)
+	conn, err := grpc.Dial(host, grpc.WithInsecure())
 	if err != nil {
-		panic(err)
+		log.Fatalf("unable to establish client connection to %v:%v - %v", userServiceName, userServicePort, err)
 	}
 	defer conn.Close()
 
+	// user grpc client
 	client := pb.NewUserServiceClient(conn)
 
-	service := userApiService{client: client}
+	// new user api service
+	s := svc.UserApiService{UserClient: client}
 
-	r.POST("/users", service.createUser)
-	r.PATCH("/users", service.updateUser)
+	// routes
+	r.POST("/users", s.CreateUser)
+	r.PATCH("/users/:id", s.UpdateUser)
 
-	r.Run(":5001")
+	// serve
+	r.Run(fmt.Sprintf(":%v", servicePort))
 }

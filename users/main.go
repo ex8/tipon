@@ -18,7 +18,7 @@ import (
 
 func main() {
 	// config
-	var (
+	const (
 		// servicePort = os.Getenv("TIPON_USERS_PORT")
 		// mongoHost   = os.Getenv("TIPON_MONGO_HOST")
 		// mongoPort   = os.Getenv("TIPON_MONGO_PORT")
@@ -50,7 +50,7 @@ func main() {
 		}
 	}()
 
-	// db
+	// store
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
 		logger.Fatalf("users failed db ping: %v", err)
 	}

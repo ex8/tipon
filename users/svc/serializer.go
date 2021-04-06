@@ -21,12 +21,10 @@ func structToProto(u *user) *pb.User {
 	}
 }
 
-// TODO: move this to core
 func objectIdToHex(id interface{}) string {
 	return id.(primitive.ObjectID).Hex()
 }
 
-// TODO: move this to core
 func hexToObjectId(id string) (primitive.ObjectID, error) {
 	s, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
