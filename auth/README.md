@@ -1,5 +1,5 @@
-# Tipon - Users gRPC Server
-The users gRPC server used for internal communication.
+# Tipon - Auth gRPC Server
+The auth service gRPC server used for internal and external communication. This uses a token based authentication system.
 
 ## Requirements
 You must have the following in order to compile the protocol buffers:
@@ -19,7 +19,7 @@ Build the binary
 go build
 ```
 
-Serve the users gRPC server
+Serve the auth gRPC server
 ```
-./users
+./auth
 ```

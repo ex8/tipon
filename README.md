@@ -9,7 +9,11 @@ Tipon is a backend infrastructure that allows users to tip other users. It utili
 
 ## Micro-Services
 - `tips` - Tips gRPC server for internal service communication.
-- `tips-api` - Tips API is the public facing Tips API.
+- `tips-api` - Public facing Tips API.
+- `users` - Users gRPC server for internal service communication.
+- `users-api` - Public facing User API.
+- `auth` - Auth gRPC server for internal tokens.
+- `auth-api` - Public facing Auth API for generating external tokens.
 
 ## Build & Serve
 You can use `docker-compose` to quickly spin up the entire system.
