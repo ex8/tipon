@@ -13,7 +13,7 @@ type UserApiService struct {
 
 type user struct {
 	ID       string `json:"id,omitempty"`
-	Username string `json:"username"`
+	Username string `json:"username" binding:"required"`
 	Password string `json:"password"`
 	Address  string `json:"address"`
 }
@@ -35,7 +35,7 @@ func (s *UserApiService) CreateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"user": res.GetUser()})
+	ctx.JSON(http.StatusCreated, gin.H{"user": res.GetUser()})
 }
 
 func (s *UserApiService) UpdateUser(ctx *gin.Context) {

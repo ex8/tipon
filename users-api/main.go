@@ -25,7 +25,7 @@ func main() {
 	host := fmt.Sprintf("%v:%v", userServiceName, userServicePort)
 	conn, err := grpc.Dial(host, grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("unable to establish client connection to %v:%v - %v", userServiceName, userServicePort, err)
+		log.Fatalf("unable to establish client connection to %v - %v", host, err)
 	}
 	defer conn.Close()
 
