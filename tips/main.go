@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ex8/tipon/tips/pb"
+	"github.com/ex8/tipon/tips/svc"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -17,12 +18,15 @@ import (
 
 func main() {
 	var (
-		servicePort = os.Getenv("TIPON_TIPS_PORT")
-		mongoHost   = os.Getenv("TIPON_MONGO_HOST")
-		mongoPort   = os.Getenv("TIPON_MONGO_PORT")
+		// servicePort = os.Getenv("TIPON_TIPS_PORT")
+		// mongoHost   = os.Getenv("TIPON_MONGO_HOST")
+		// mongoPort   = os.Getenv("TIPON_MONGO_PORT")
+		servicePort = "8000"
+		mongoHost   = "127.0.0.1"
+		mongoPort   = "27017"
 	)
 
-	logger := log.New(os.Stdout, "tips_server:", log.Default().Flags())
+	logger := log.New(os.Stdout, "TIPS_SERVICE::", log.Default().Flags())
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", servicePort))
 	if err != nil {
@@ -49,9 +53,11 @@ func main() {
 		logger.Fatalf("tips failed db ping: %v", err)
 	}
 
+	logger.Printf("starting tips service on port %v\n", servicePort)
+
 	// Tips gRPC server
 	s := grpc.NewServer()
-	pb.RegisterTipServiceServer(s, &tipService{tips: client.Database("tipon-tips").Collection("tips")})
+	pb.RegisterTipServiceServer(s, &svc.TipService{Tips: client.Database("tipon-tips").Collection("tips")})
 	if err := s.Serve(lis); err != nil {
 		logger.Fatalf("tips failed to serve: %v", err)
 	}
