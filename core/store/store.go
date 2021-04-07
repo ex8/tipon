@@ -18,6 +18,13 @@ type Opts struct {
 	Port string
 }
 
+func (s *Store) Disconnect(ctx context.Context) error {
+	if err := s.Client.Disconnect(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
 func New(ctx context.Context, opts Opts) (*Store, error) {
 	// connection string
 	uri := fmt.Sprintf("mongodb://%s:%s", opts.Host, opts.Port)

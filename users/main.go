@@ -8,11 +8,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/ex8/tipon/core/store"
 	"github.com/ex8/tipon/users/pb"
 	"github.com/ex8/tipon/users/svc"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"google.golang.org/grpc"
 )
 
@@ -32,35 +30,29 @@ func main() {
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", servicePort))
 	if err != nil {
-		logger.Fatalf("users failed to listen: %v", err)
+		logger.Fatalf("failed to listen: %v", err)
 	}
 
-	// store
+	// Store ctx
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	uri := fmt.Sprintf("mongodb://%s:%s", mongoHost, mongoPort)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	store, err := store.New(ctx, store.Opts{Host: mongoHost, Port: mongoPort})
 	if err != nil {
-		logger.Fatalf("users failed db connection: %v", err)
+		logger.Fatalf("failed to connect store: %v", err)
 	}
 	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
+		if err = store.Client.Disconnect(ctx); err != nil {
+			logger.Fatalf("failed to disconnect store: %v", err)
 		}
 	}()
 
-	// store
-	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		logger.Fatalf("users failed db ping: %v", err)
-	}
-
-	logger.Printf("starting users service on port %v\n", servicePort)
+	logger.Printf("starting service on port %v\n", servicePort)
 
 	// user grpc server
 	s := grpc.NewServer()
-	pb.RegisterUserServiceServer(s, &svc.UserService{Users: client.Database("tipon-users").Collection("users")})
+	pb.RegisterUserServiceServer(s, &svc.UserService{Users: store.Client.Database("tipon-users").Collection("users")})
 	if err := s.Serve(lis); err != nil {
-		logger.Fatalf("users failed to serve: %v", err)
+		logger.Fatalf("failed to serve: %v", err)
 	}
 }
