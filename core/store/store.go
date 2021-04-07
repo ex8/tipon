@@ -9,26 +9,28 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-type Store *mongo.Client
+type Store struct {
+	Client *mongo.Client
+}
 
-type StoreOpts struct {
+type Opts struct {
 	Host string
 	Port string
 }
 
-func NewStore(ctx context.Context, opts StoreOpts) (Store, error) {
+func New(ctx context.Context, opts Opts) (*Store, error) {
 	// connection string
 	uri := fmt.Sprintf("mongodb://%s:%s", opts.Host, opts.Port)
 
-	// store (db) client connect
-	store, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	// db client connect
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		return nil, err
 	}
 
 	// store ping
-	if err = store.Ping(ctx, readpref.Primary()); err != nil {
+	if err = client.Ping(ctx, readpref.Primary()); err != nil {
 		return nil, err
 	}
-	return store, nil
+	return &Store{Client: client}, nil
 }
