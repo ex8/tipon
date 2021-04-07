@@ -8,11 +8,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/ex8/tipon/core/store"
 	"github.com/ex8/tipon/tips/pb"
 	"github.com/ex8/tipon/tips/svc"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"google.golang.org/grpc"
 )
 
@@ -22,6 +20,7 @@ func main() {
 		// mongoHost   = os.Getenv("TIPON_MONGO_HOST")
 		// mongoPort   = os.Getenv("TIPON_MONGO_PORT")
 		servicePort = "8000"
+		mongoClient = "mongodb"
 		mongoHost   = "127.0.0.1"
 		mongoPort   = "27017"
 	)
@@ -33,32 +32,32 @@ func main() {
 		logger.Fatalf("tips failed to listen: %v", err)
 	}
 
-	// DB connect
+	// store
+	s := store.New()
+
+	// store ctx
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	uri := fmt.Sprintf("mongodb://%s:%s", mongoHost, mongoPort)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	if err != nil {
-		logger.Fatalf("tips failed db connection: %v", err)
+	// store connect
+	opts := store.Opts{Client: mongoClient, Host: mongoHost, Port: mongoPort}
+	if err = s.Connect(ctx, opts); err != nil {
+		logger.Fatalf("failed to connect store: %v", err)
 	}
+
+	// store disconnect
 	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
+		if err = s.Disconnect(ctx); err != nil {
+			logger.Fatalf("failed to disconnected store: %v", err)
 		}
 	}()
-
-	// DB ping
-	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		logger.Fatalf("tips failed db ping: %v", err)
-	}
 
 	logger.Printf("starting tips service on port %v\n", servicePort)
 
 	// Tips gRPC server
-	s := grpc.NewServer()
-	pb.RegisterTipServiceServer(s, &svc.TipService{Tips: client.Database("tipon-tips").Collection("tips")})
-	if err := s.Serve(lis); err != nil {
+	server := grpc.NewServer()
+	pb.RegisterTipServiceServer(server, &svc.TipService{Tips: s.Client.Database("tipon-tips").Collection("tips")})
+	if err := server.Serve(lis); err != nil {
 		logger.Fatalf("tips failed to serve: %v", err)
 	}
 }
