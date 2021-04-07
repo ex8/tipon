@@ -8,6 +8,7 @@ Tipon is a backend infrastructure that allows users to tip other users. It utili
 - Docker
 
 ## Micro-Services
+- `core` - Tipon abstraction library in use by each micro-service.
 - `tips` - Tips gRPC server for internal service communication.
 - `tips-api` - Public facing Tips API.
 - `users` - Users gRPC server for internal service communication.
