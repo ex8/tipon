@@ -42,8 +42,8 @@ func main() {
 		logger.Fatalf("failed to connect store: %v", err)
 	}
 	defer func() {
-		if err = store.Client.Disconnect(ctx); err != nil {
-			logger.Fatalf("failed to disconnect store: %v", err)
+		if err = store.Disconnect(ctx); err != nil {
+			logger.Fatalf("failed to disconnect store: %v")
 		}
 	}()
 
