@@ -37,13 +37,13 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	store, err := store.New(ctx, store.Opts{Host: mongoHost, Port: mongoPort})
+	db, err := store.New(ctx, store.Opts{Host: mongoHost, Port: mongoPort})
 	if err != nil {
-		logger.Fatalf("failed to connect store: %v", err)
+		logger.Fatalf("failed to connect db: %v", err)
 	}
 	defer func() {
-		if err = store.Disconnect(ctx); err != nil {
-			logger.Fatalf("failed to disconnect store: %v")
+		if err = db.Disconnect(ctx); err != nil {
+			logger.Fatalf("failed to disconnect db: %v", err)
 		}
 	}()
 
@@ -51,7 +51,7 @@ func main() {
 
 	// user grpc server
 	s := grpc.NewServer()
-	pb.RegisterUserServiceServer(s, &svc.UserService{Users: store.Client.Database("tipon-users").Collection("users")})
+	pb.RegisterUserServiceServer(s, &svc.UserService{Users: db.Client.Database("tipon-users").Collection("users")})
 	if err := s.Serve(lis); err != nil {
 		logger.Fatalf("failed to serve: %v", err)
 	}

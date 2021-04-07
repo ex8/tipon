@@ -33,7 +33,7 @@ func (s *Store) Connect(ctx context.Context, opts Opts) error {
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
 		return err
 	}
-	s.SetClient(ctx, client)
+	s.SetClient(client)
 	return nil
 }
 
@@ -44,10 +44,10 @@ func (s *Store) Disconnect(ctx context.Context) error {
 	return nil
 }
 
-func (s *Store) SetClient(ctx context.Context, client *mongo.Client) {
+func (s *Store) SetClient(client *mongo.Client) {
 	s.Client = client
 }
 
-func New(ctx context.Context, opts Opts) *Store {
+func New() *Store {
 	return &Store{}
 }
