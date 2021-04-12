@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/ex8/tipon/core/store"
 	"github.com/ex8/tipon/users/pb"
 	"github.com/ex8/tipon/users/svc"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gopkg.in/yaml.v3"
 )
@@ -46,7 +46,12 @@ func main() {
 	}
 
 	// logger
-	logger := log.New(os.Stdout, fmt.Sprintf("%v ::", c.Service.Name), log.Default().Flags())
+	l, err := zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
+	defer l.Sync()
+	logger := l.Sugar()
 
 	// listen
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", c.Service.Port))
@@ -74,7 +79,7 @@ func main() {
 		}
 	}()
 
-	logger.Printf("starting %v service on port %v\n", c.Service.Name, c.Service.Port)
+	logger.Infof("starting %v service on port %v", c.Service.Name, c.Service.Port)
 
 	// user grpc server
 	server := grpc.NewServer()
