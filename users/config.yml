@@ -1,0 +1,9 @@
+service:
+  name: "Users"
+  port: 5000
+store:
+  client: "mongodb"
+  host: "127.0.0.1"
+  port: 27017
+  database: "tipon-users"
+  collection: "users"

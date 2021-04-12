@@ -12,24 +12,44 @@ import (
 	"github.com/ex8/tipon/users/pb"
 	"github.com/ex8/tipon/users/svc"
 	"google.golang.org/grpc"
+	"gopkg.in/yaml.v3"
 )
+
+type cfg struct {
+	Service serviceCfg
+	Store   storeCfg
+}
+
+type serviceCfg struct {
+	Name string `yaml:"name"`
+	Port string `yaml:"port"`
+}
+
+type storeCfg struct {
+	Client     string `yaml:"client"`
+	Host       string `yaml:"host"`
+	Port       string `yaml:"port"`
+	Database   string `yaml:"database"`
+	Collection string `yaml:"collection"`
+}
 
 func main() {
 	// config
-	const (
-		// servicePort = os.Getenv("TIPON_USERS_PORT")
-		// mongoHost   = os.Getenv("TIPON_MONGO_HOST")
-		// mongoPort   = os.Getenv("TIPON_MONGO_PORT")
-		servicePort = "5000"
-		mongoClient = "mongodb"
-		mongoHost   = "127.0.0.1"
-		mongoPort   = "27017"
-	)
+	c := &cfg{}
+	if file, err := os.Open("config.yml"); err == nil {
+		defer file.Close()
+		if err = yaml.NewDecoder(file).Decode(c); err != nil {
+			panic(err)
+		}
+	} else {
+		panic(err)
+	}
 
 	// logger
-	logger := log.New(os.Stdout, "USERS_SERVICE::", log.Default().Flags())
+	logger := log.New(os.Stdout, fmt.Sprintf("%v ::", c.Service.Name), log.Default().Flags())
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", servicePort))
+	// listen
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", c.Service.Port))
 	if err != nil {
 		logger.Fatalf("failed to listen: %v", err)
 	}
@@ -42,7 +62,7 @@ func main() {
 	defer cancel()
 
 	// store connect
-	opts := store.Opts{Client: mongoClient, Host: mongoHost, Port: mongoPort}
+	opts := store.Opts{Client: c.Store.Client, Host: c.Store.Host, Port: c.Store.Port}
 	if err = s.Connect(ctx, opts); err != nil {
 		logger.Fatalf("failed to connect to store: %v", err)
 	}
@@ -54,11 +74,12 @@ func main() {
 		}
 	}()
 
-	logger.Printf("starting service on port %v\n", servicePort)
+	logger.Printf("starting %v service on port %v\n", c.Service.Name, c.Service.Port)
 
 	// user grpc server
 	server := grpc.NewServer()
-	pb.RegisterUserServiceServer(server, &svc.UserService{Users: s.Client.Database("tipon-users").Collection("users")})
+	users := s.Client.Database(c.Store.Database).Collection(c.Store.Collection)
+	pb.RegisterUserServiceServer(server, &svc.UserService{Users: users})
 	if err := server.Serve(lis); err != nil {
 		logger.Fatalf("failed to serve: %v", err)
 	}
